@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+<body class="tracking-wide bg-[var(--color-background)] text-[var(--color-text)] font-[Montserrat]">
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include('partials/slidebar') %>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6 pt-24">
+      <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">Sale Management</h1>
+        
+        <div class="flex items-center gap-4">
+          <a href="/get-products" class="flex items-center bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+            <i class="ri-arrow-left-line mr-2"></i> Back to Products
+          </a>
+        </div>
+      </div>
+      
+      <!-- Sales Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-secondary)]">
+          <p class="text-gray-500 text-sm">Products on Sale</p>
+          <h2 class="text-2xl font-bold"><%= products.length %></h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
+          <p class="text-gray-500 text-sm">Avg. Discount</p>
+          <h2 class="text-2xl font-bold">
+            <%= products.length ? Math.round(products.reduce((sum, p) => sum + (p.discount || 0), 0) / products.length) : 0 %>%
+          </h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-highlight)]">
+          <p class="text-gray-500 text-sm">Top Discount</p>
+          <h2 class="text-2xl font-bold">
+            <%= products.length ? Math.max(...products.map(p => p.discount || 0)) : 0 %>%
+          </h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-success)]">
+          <p class="text-gray-500 text-sm">Revenue Impact</p>
+          <h2 class="text-2xl font-bold text-green-600">+22%</h2>
+        </div>
+      </div>
+      
+      <!-- Sale Filters -->
+      <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div>
+            <label for="filterDiscount" class="block text-xs font-medium text-gray-500 mb-1">Filter by Discount</label>
+            <select id="filterDiscount" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="">All Discounts</option>
+              <option value="0-10">0% - 10%</option>
+              <option value="10-30">10% - 30%</option>
+              <option value="30-50">30% - 50%</option>
+              <option value="50+">50% and above</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="filterCategory" class="block text-xs font-medium text-gray-500 mb-1">Filter by Category</label>
+            <select id="filterCategory" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="">All Categories</option>
+              <% 
+                const uniqueCategories = [...new Set(products.map(p => 
+                  p.category && p.category.categoryName ? p.category.categoryName : null
+                ).filter(Boolean))];
+              %>
+              <% uniqueCategories.forEach(cat => { %>
+                <option value="<%= cat %>"><%= cat %></option>
+              <% }); %>
+            </select>
+          </div>
+          
+          <div>
+            <label for="sortBy" class="block text-xs font-medium text-gray-500 mb-1">Sort by</label>
+            <select id="sortBy" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="discount-high">Highest Discount</option>
+              <option value="discount-low">Lowest Discount</option>
+              <option value="price-low">Price (Low to High)</option>
+              <option value="price-high">Price (High to Low)</option>
+            </select>
+          </div>
+          
+          <div class="ml-auto">
+            <label for="searchSale" class="block text-xs font-medium text-gray-500 mb-1">Search Products</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="ri-search-line text-gray-400"></i>
+              </span>
+              <input type="text" id="searchSale" placeholder="Search..." class="pl-10 p-2 border border-gray-300 rounded-md text-sm w-64">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discounted Products List -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-semibold">Products on Sale</h2>
+          
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-500">Sale Period:</span>
+            <span class="font-medium">Jun 10 - Jul 10, 2023</span>
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs ml-2">Active</span>
+          </div>
+        </div>
+        
+        <% if (products.length === 0) { %>
+          <div class="text-center py-12">
+            <div class="text-gray-400 text-5xl mb-4">
+              <i class="ri-price-tag-3-line"></i>
+            </div>
+            <p class="text-gray-500">No products on sale</p>
+            <p class="text-gray-400 text-sm mt-2">Add discounts to products to see them here</p>
+            <a href="/get-products" class="mt-4 inline-block bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+              Go to Products
+            </a>
+          </div>
+        <% } else { %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <% products.forEach((product) => { %>
+              <div class="relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 flex flex-col">
+                <!-- Discount Badge -->
+                <% if (product.discount > 0) { %>
+                  <div class="absolute top-0 right-0 bg-red-500 text-white font-bold px-3 py-1 z-10 rounded-bl-lg shadow-sm">
+                    -<%= product.discount %>%
+                  </div>
+                <% } %>
+                
+                <div class="aspect-video overflow-hidden relative h-64">
+                  <img src="<%= product.image.replace(/\\/g, '/') %>" alt="<%= product.productName %>" 
+                    class="w-full h-full object-cover absolute inset-0 hover:scale-105 transition-transform duration-300" />
+                </div>
+                
+                <div class="p-4 flex-1 flex flex-col">
+                  <h3 class="font-medium text-gray-900 mb-1 text-lg truncate"><%= product.productName %></h3>
+                  <p class="text-sm text-gray-500 mb-2"><%= product.category.categoryName %> • <%= product.gender %></p>
+                  
+                  <div class="flex items-end gap-2 mb-3 mt-auto">
+                    <% if (product.discount > 0) { %>
+                      <div class="flex flex-col">
+                        <span class="text-xl font-bold text-[var(--color-secondary)]">
+                          ₹<%= (product.price - (product.price * product.discount / 100)).toFixed(0) %>
+                        </span>
+                        <span class="text-sm text-gray-500 line-through">₹<%= product.price %></span>
+                      </div>
+                      <div class="ml-auto">
+                        <span class="text-xs text-gray-500">Savings:</span>
+                        <span class="text-sm font-medium text-green-600">
+                          ₹<%= (product.price * product.discount / 100).toFixed(0) %>
+                        </span>
+                      </div>
+                    <% } else { %>
+                      <span class="text-xl font-bold text-[var(--color-secondary)]">₹<%= product.price %></span>
+                      <span class="ml-auto text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">No Discount</span>
+                    <% } %>
+                  </div>
+                  
+                  <div class="flex gap-2 mt-2">
+                    <a href="/edit-product/<%= product._id %>" class="flex-1 bg-[var(--color-accent)] text-white text-center py-2 rounded-md text-sm hover:bg-opacity-90 transition-all flex items-center justify-center">
+                      <i class="ri-edit-line mr-1"></i> Edit
+                    </a>
+                    <form action="/delete-product/<%= product._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');" class="flex-1">
+                      <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-md text-sm hover:bg-opacity-90 transition-all flex items-center justify-center">
+                        <i class="ri-delete-bin-line mr-1"></i> Delete
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          
+          <!-- Pagination -->
+          <div class="flex justify-center mt-8">
+            <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+              <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Previous
+              </a>
+              <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-[var(--color-secondary)]">
+                1
+              </a>
+              <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                2
+              </a>
+              <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                3
+              </a>
+              <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Next
+              </a>
+            </nav>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Filter functionality
+      initializeFilters();
+      
+      function initializeFilters() {
+        const filterDiscount = document.getElementById('filterDiscount');
+        const filterCategory = document.getElementById('filterCategory');
+        const sortBy = document.getElementById('sortBy');
+        const searchSale = document.getElementById('searchSale');
+        const productGrid = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4');
+        const countDisplay = document.querySelector('.text-2xl.font-bold');
+        
+        if (!productGrid || !filterDiscount || !filterCategory || !sortBy || !searchSale) {
+          console.error('Could not find required filter elements');
+          return;
+        }
+        
+        // Create a backup of all products
+        const allProducts = Array.from(productGrid.children);
+        let visibleProducts = [...allProducts];
+        const initialCount = allProducts.length;
+        
+        // Apply filters on events
+        searchSale.addEventListener('input', applyFilters);
+        filterCategory.addEventListener('change', applyFilters);
+        filterDiscount.addEventListener('change', applyFilters);
+        sortBy.addEventListener('change', applyFilters);
+        
+        function applyFilters() {
+          const searchValue = searchSale.value.toLowerCase().trim();
+          const categoryValue = filterCategory.value.toLowerCase();
+          const discountRange = filterDiscount.value;
+          const sortValue = sortBy.value;
+          
+          // Reset display and filter
+          visibleProducts = allProducts.filter(card => {
+            // Extract data from card
+            const productName = card.querySelector('h3').textContent.toLowerCase();
+            const categoryInfo = card.querySelector('p.text-sm.text-gray-500').textContent.toLowerCase();
+            const discount = extractDiscount(card);
+            
+            // Apply search filter
+            if (searchValue && !productName.includes(searchValue)) {
+              return false;
+            }
+            
+            // Apply category filter
+            if (categoryValue && !categoryInfo.includes(categoryValue)) {
+              return false;
+            }
+            
+            // Apply discount range filter
+            if (discountRange) {
+              const [min, max] = discountRange.split('-').map(Number);
+              if (max === undefined) {
+                // For "50+" range
+                if (discount < 50) return false;
+              } else {
+                if (discount < min || discount > max) return false;
+              }
+            }
+            
+            return true;
+          });
+          
+          // Apply sorting
+          sortProducts(visibleProducts, sortValue);
+          
+          // Update the display with filtered products
+          updateProductDisplay(visibleProducts);
+        }
+        
+        function sortProducts(products, sortingType) {
+          products.sort((a, b) => {
+            const discountA = extractDiscount(a);
+            const discountB = extractDiscount(b);
+            
+            const priceA = extractPrice(a);
+            const priceB = extractPrice(b);
+            
+            // Sort based on the selected option
+            switch (sortingType) {
+              case 'discount-high':
+                return discountB - discountA;
+              case 'discount-low':
+                return discountA - discountB;
+              case 'price-low':
+                return priceA - priceB;
+              case 'price-high':
+                return priceB - priceA;
+              default:
+                return 0;
+            }
+          });
+        }
+        
+        function extractPrice(card) {
+          const priceElement = card.querySelector('.text-xl.font-bold');
+          if (!priceElement) return 0;
+          
+          // Extract number from string like "₹1000"
+          const match = priceElement.textContent.match(/[\d,.]+/);
+          return match ? parseFloat(match[0].replace(/,/g, '')) : 0;
+        }
+        
+        function extractDiscount(card) {
+          const discountEl = card.querySelector('.bg-red-500');
+          if (!discountEl) return 0;
+          
+          // Extract number from string like "-20%"
+          const match = discountEl.textContent.match(/\d+/);
+          return match ? parseInt(match[0]) : 0;
+        }
+        
+        function updateProductDisplay(visibleProducts) {
+          // Clear the product grid
+          productGrid.innerHTML = '';
+          
+          if (visibleProducts.length === 0) {
+            // Show empty state
+            const emptyState = document.createElement('div');
+            emptyState.className = 'text-center py-10 col-span-full';
+            emptyState.innerHTML = `
+              <div class="text-gray-400 text-5xl mb-4">
+                <i class="ri-filter-off-line"></i>
+              </div>
+              <p class="text-gray-500">No products match your filters</p>
+              <p class="text-gray-400 text-sm mt-2">Try adjusting your search criteria</p>
+              <button id="resetFilters" class="mt-4 bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+                Reset Filters
+              </button>
+            `;
+            productGrid.appendChild(emptyState);
+            
+            // Add reset button listener
+            setTimeout(() => {
+              const resetBtn = document.getElementById('resetFilters');
+              if (resetBtn) {
+                resetBtn.addEventListener('click', resetAllFilters);
+              }
+            }, 100);
+          } else {
+            // Add visible products back to the grid
+            visibleProducts.forEach(product => {
+              productGrid.appendChild(product);
+            });
+          }
+          
+          // Update the count display
+          if (countDisplay) {
+            countDisplay.textContent = visibleProducts.length;
+          }
+        }
+        
+        function resetAllFilters() {
+          searchSale.value = '';
+          filterCategory.value = '';
+          filterDiscount.value = '';
+          sortBy.value = 'discount-high';
+          
+          // Reset to original display
+          visibleProducts = [...allProducts];
+          updateProductDisplay(visibleProducts);
+          
+          // Update count display
+          if (countDisplay) {
+            countDisplay.textContent = initialCount;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

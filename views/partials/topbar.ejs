@@ -1,0 +1,174 @@
+<!-- Top Bar -->
+<div class="top w-full flex flex-wrap justify-between items-center py-3 border-b border-gray-300 px-4 md:px-8">
+  <!-- Left (Logo) -->
+  <a href="/">
+    <div class="left flex items-center gap-1 mb-2 md:mb-0">
+      <span class="text-4xl font-bold text-[#65350F] border-gray-600 flex items-center justify-center w-14 h-14 border">
+        V
+      </span>
+      <h2 class="text-3xl font-semibold">ASKA</h2>
+    </div>
+  </a>
+
+  <!-- Middle (Search Bar) -->
+  <div class="middle relative w-full mb-2 md:mt-2 md:flex-1 md:max-w-2xl md:mx-4">
+    <div
+      class="w-full border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#65350F] focus-within:border-transparent transition-all duration-300 flex">
+      <input type="text" id="searchInput" placeholder="Search for products..."
+        class="flex-grow px-4 py-2 outline-none w-full" autocomplete="off" value="" />
+      <button 
+        class="px-6 py-2 bg-[#65350F] text-white hover:bg-[#4a2610] transition-colors duration-300 flex items-center justify-center">
+        <i class="ri-search-2-line text-lg"></i>
+      </button>
+    </div>
+    <!-- Search Results Dropdown -->
+    <div id="searchResults"
+      class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl hidden max-h-[500px] overflow-y-auto z-[9999] transform transition-all duration-300 ease-in-out">
+      <!-- Search results will be populated here -->
+    </div>
+  </div>
+
+  <!-- Right (Wishlist & Cart) -->
+  <div class="right flex items-center gap-4">
+    <% if (typeof user !=='undefined' && user) { %>
+      <a href="/liked" class="cursor-pointer">
+        <button
+          class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+          <i class="ri-heart-2-line text-[#65350F]"></i>
+          <span class="text-sm hidden lg:inline">Wishlist</span>
+        </button>
+      </a>
+      <a href="/orders" class="cursor-pointer">
+        <button
+          class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+          <i class="ri-file-list-line text-[#65350F]"></i>
+          <span class="text-sm hidden lg:inline">Orders</span>
+        </button>
+      </a>
+      <a href="/cart" class="cursor-pointer">
+        <button
+          class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+          <i class="ri-shopping-cart-line text-[#65350F]"></i>
+          <span class="text-sm hidden lg:inline">Cart</span>
+        </button>
+      </a>
+      <a href="/logout" class="cursor-pointer">
+        <button
+          class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+          <i class="ri-logout-box-line text-[#65350F]"></i>
+          <span class="text-sm hidden lg:inline">Logout</span>
+        </button>
+      </a>
+      <% } else { %>
+        <a href="/login" class="cursor-pointer">
+          <button
+            class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+            <i class="ri-user-line text-[#65350F]"></i>
+            <span class="text-sm hidden lg:inline">Login</span>
+          </button>
+        </a>
+        <a href="/signup" class="cursor-pointer">
+          <button
+            class="cart flex items-center gap-2 text-lg border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+            <i class="ri-user-add-line text-[#65350F]"></i>
+            <span class="text-sm hidden lg:inline">Sign Up</span>
+          </button>
+        </a>
+        <% } %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    let searchTimeout;
+
+    searchInput.addEventListener("input", function (e) {
+      const query = e.target.value.trim().toLowerCase();
+
+      // Clear previous timeout
+      clearTimeout(searchTimeout);
+
+      if (query.length < 1) {
+        searchResults.classList.add("hidden");
+        return;
+      }
+
+      // Add debounce to prevent too many API calls
+      searchTimeout = setTimeout(() => {
+        fetch(`/get-product?q=${encodeURIComponent(query)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            searchResults.innerHTML = "";
+
+            // Filter products based on the search query
+            const filteredProducts = data.filter((product) =>
+              product.productName.toLowerCase().includes(query)
+            );
+
+            if (filteredProducts.length === 0) {
+              searchResults.innerHTML = `
+              <div class="p-6 text-center">
+                <i class="ri-search-off-line text-4xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">No products found matching "${query}"</p>
+              </div>
+            `;
+            } else {
+              filteredProducts.forEach((product) => {
+                const productElement = document.createElement("div");
+                productElement.className =
+                  "p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-200";
+                productElement.innerHTML = `
+                <div class="flex items-center gap-4">
+                  <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="${product.image}" 
+                      alt="${product.productName}" 
+                      class="w-full h-full object-contain"
+                      onerror="this.src='/images/placeholder.png'"
+                    >
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-medium text-gray-800">${product.productName}</h3>
+                    <p class="text-sm text-gray-600">₹${product.price}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-xs text-gray-500">Click to view details</span>
+                      <i class="ri-arrow-right-s-line text-gray-400"></i>
+                    </div>
+                  </div>
+                </div>
+              `;
+                productElement.addEventListener("click", () => {
+                  window.location.href = `/product/${product._id}`;
+                });
+                searchResults.appendChild(productElement);
+              });
+            }
+
+            searchResults.classList.remove("hidden");
+          })
+          .catch((error) => {
+            console.error("Error fetching search results:", error);
+            searchResults.innerHTML = `
+            <div class="p-6 text-center">
+              <i class="ri-error-warning-line text-4xl text-red-400 mb-2"></i>
+              <p class="text-red-500">Error fetching results. Please try again.</p>
+            </div>
+          `;
+            searchResults.classList.remove("hidden");
+          });
+      }, 300); // 300ms debounce
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener("click", function (e) {
+      if (
+        !searchInput.contains(e.target) &&
+        !searchResults.contains(e.target)
+      ) {
+        searchResults.classList.add("hidden");
+      }
+    });
+  });
+</script>

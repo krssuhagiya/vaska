@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+<body class="tracking-wide bg-[var(--color-background)] text-[var(--color-text)] font-[Montserrat]">
+
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include('partials/slidebar') %>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6 pt-24">
+      <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">Order Management</h1>
+        
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-sm text-sm">
+            <span>Status:</span>
+            <select class="border rounded-md p-1 text-sm">
+              <option value="all">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+            </select>
+          </div>
+          
+          <button class="flex items-center bg-[var(--color-secondary)] text-white px-3 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+            <i class="ri-download-line mr-2"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-secondary)]">
+          <p class="text-gray-500 text-sm">Total Orders</p>
+          <h2 class="text-2xl font-bold"><%= orders.length %></h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-highlight)]">
+          <p class="text-gray-500 text-sm">Pending Orders</p>
+          <h2 class="text-2xl font-bold"><%= orders.filter(o => o.status !== 'Confirmed').length %></h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-success)]">
+          <p class="text-gray-500 text-sm">Confirmed Orders</p>
+          <h2 class="text-2xl font-bold"><%= orders.filter(o => o.status === 'Confirmed').length %></h2>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-[var(--color-accent)]">
+          <p class="text-gray-500 text-sm">Total Revenue</p>
+          <h2 class="text-2xl font-bold">₹<%= orders.reduce((sum, order) => sum + order.totalAmount, 0).toLocaleString() %></h2>
+        </div>
+      </div>
+
+      <!-- Orders List -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-4 border-b">
+          <h2 class="font-semibold">Recent Orders</h2>
+        </div>
+
+        <% if (orders.length === 0) { %>
+          <div class="p-8 text-center">
+            <div class="text-gray-400 text-5xl mb-4">
+              <i class="ri-shopping-bag-line"></i>
+            </div>
+            <p class="text-gray-500">No orders found</p>
+            <p class="text-gray-400 text-sm mt-2">Orders will appear here once customers make purchases</p>
+          </div>
+        <% } else { %>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 text-gray-600 uppercase text-xs">
+                  <th class="px-6 py-3 text-left">Order ID</th>
+                  <th class="px-6 py-3 text-left">Products</th>
+                  <th class="px-6 py-3 text-left">Amount</th>
+                  <th class="px-6 py-3 text-left">Status</th>
+                  <th class="px-6 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <% orders.forEach(order => { %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                      <span class="font-mono text-xs"><%= order._id %></span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="max-w-xs">
+                        <% if (order.products.length > 0) { %>
+                          <span><%= order.products[0].product.productName %></span>
+                          <% if (order.products.length > 1) { %>
+                            <span class="text-gray-400 text-xs"> + <%= order.products.length - 1 %> more</span>
+                          <% } %>
+                        <% } %>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 font-medium">₹<%= order.totalAmount %></td>
+                    <td class="px-6 py-4">
+                      <% if (order.status === "Confirmed") { %>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                          Confirmed
+                        </span>
+                      <% } else { %>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium" id="status-<%= order._id %>">
+                          Pending
+                        </span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <% if (order.status !== "Confirmed") { %>
+                        <button onclick="confirmOrder('<%= order._id %>')" 
+                          class="bg-[var(--color-secondary)] hover:bg-opacity-90 text-white px-3 py-1 rounded text-xs font-medium transition-all">
+                          Confirm
+                        </button>
+                      <% } %>
+                      <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-xs font-medium ml-2 transition-all">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function confirmOrder(orderId) {
+      try {
+        const response = await fetch(`/confirm-order/${orderId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById(`status-${orderId}`).innerHTML = "Confirmed";
+          document.getElementById(`status-${orderId}`).classList.remove("bg-yellow-100", "text-yellow-800");
+          document.getElementById(`status-${orderId}`).classList.add("bg-green-100", "text-green-800");
+          
+          // Find and hide the confirm button
+          const confirmBtn = document.querySelector(`button[onclick="confirmOrder('${orderId}')"]`);
+          if (confirmBtn) confirmBtn.style.display = "none";
+          
+          // Optionally update the stats without reloading
+          // This would require additional DOM manipulation
+          
+          // Show success notification
+          const notification = document.createElement("div");
+          notification.classList.add("fixed", "bottom-4", "right-4", "bg-green-100", "text-green-800", "px-4", "py-3", "rounded-lg", "shadow-md");
+          notification.innerHTML = `<div class="flex items-center"><i class="ri-check-line mr-2"></i> Order confirmed successfully!</div>`;
+          document.body.appendChild(notification);
+          
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            notification.classList.add("opacity-0", "transition-opacity");
+            setTimeout(() => notification.remove(), 300);
+          }, 3000);
+        } else {
+          alert("Failed to confirm order: " + data.error);
+        }
+      } catch (error) {
+        console.error("Error confirming order:", error);
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partials/head')%>
+<body class="tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%>
+    <%-include('partials/navbar')%>
+
+    <!-- Filter and Products Section -->
+    <div class="container mx-auto px-4 py-12">
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center justify-between mb-8">
+            <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                <select id="sort-filter" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Sort By</option>
+                    <option value="discount-high">Highest Discount</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+                <select id="discount-filter" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Discount</option>
+                    <option value="50-plus">50% & Above</option>
+                    <option value="40-plus">40% & Above</option>
+                    <option value="30-plus">30% & Above</option>
+                </select>
+                <select id="price-filter" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Price Range</option>
+                    <option value="under-1000">Under ₹1,000</option>
+                    <option value="1000-3000">₹1,000 - ₹3,000</option>
+                    <option value="3000-plus">Above ₹3,000</option>
+                </select>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">View:</span>
+                <button class="p-2 hover:bg-gray-100 rounded-lg" id="grid-view">
+                    <i class="ri-grid-fill text-xl"></i>
+                </button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg" id="list-view">
+                    <i class="ri-list-check text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="product-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        </div>
+    </div>
+
+    <%-include('partials/appointment')%>
+    <%-include('partials/footer')%>
+    <script src="/js/script.js"></script>
+    <script src="/js/like.js"></script>
+    <script>
+        let allProducts = [];
+        
+        async function fetchProducts() {
+            try {
+                const responseP = await fetch("/get-product");
+                const dataP = await responseP.json();
+                // Filter products with discounts
+                allProducts = dataP.filter(product => product.discount > 0);
+                
+                if (allProducts.length === 0) {
+                    const productContainer = document.getElementById("product-container");
+                    productContainer.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="ri-shopping-bag-line text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-xl text-gray-500">No sale products found. Please check back later.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Sort by highest discount by default
+                allProducts.sort((a, b) => b.discount - a.discount);
+                renderProducts(allProducts);
+                
+                // Initialize like status for all products
+                const heartIcons = document.querySelectorAll('[data-product-id]');
+                heartIcons.forEach(icon => {
+                    const productId = icon.getAttribute('data-product-id');
+                    checkLikeStatus(productId);
+                });
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                const productContainer = document.getElementById("product-container");
+                productContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="ri-error-warning-line text-6xl text-red-300 mb-4"></i>
+                        <p class="text-xl text-gray-500">Error loading products. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderProducts(products) {
+            const productContainer = document.getElementById("product-container");
+            productContainer.innerHTML = "";
+
+            if (products.length === 0) {
+                productContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="ri-shopping-bag-line text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-xl text-gray-500">No products found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            products.forEach(product => {
+                const discountedPrice = Math.round(product.price * (1 - product.discount/100));
+
+                const productCard = `
+                    <div class="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-red-100">
+                        <div class="relative aspect-[3/4] overflow-hidden">
+                            <img src="${product.image.replace(/\\/g, '/')}" 
+                                 alt="${product.productName}" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='/images/placeholder.png'">
+                            <button 
+                                onclick="toggleLike('${product._id}')"
+                                class="absolute top-4 right-4 bg-white w-10 h-10 flex items-center justify-center rounded-full shadow-md hover:bg-gray-100 transform hover:scale-110 transition-all"
+                            >
+                                <i class="ri-heart-line text-2xl cursor-pointer hover:text-red-500 transition-colors" data-product-id="${product._id}"></i>
+                            </button>
+                            <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium border border-white/50">
+                                ${product.discount}% OFF
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button 
+                                    onclick="addToCart('${product._id}')"
+                                    class="w-full bg-white text-red-500 font-medium px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                >
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold mb-2 line-clamp-2">${product.productName}</h3>
+                            <p class="text-gray-600 text-sm mb-3">${product.productName}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="space-x-2">
+                                    <span class="text-gray-500 line-through text-sm">₹${product.price}</span>
+                                    <span class="text-xl font-bold text-red-500">₹${discountedPrice}</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="ri-star-fill text-yellow-400"></i>
+                                    <span class="text-sm font-medium">4.5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                productContainer.innerHTML += productCard;
+            });
+        }
+
+        function applyFilters() {
+            let filteredProducts = [...allProducts];
+
+            // Apply sort filter
+            const sortFilter = document.getElementById('sort-filter').value;
+            if (sortFilter) {
+                switch (sortFilter) {
+                    case 'discount-high':
+                        filteredProducts.sort((a, b) => b.discount - a.discount);
+                        break;
+                    case 'price-low':
+                        filteredProducts.sort((a, b) => {
+                            const priceA = a.price * (1 - a.discount/100);
+                            const priceB = b.price * (1 - b.discount/100);
+                            return priceA - priceB;
+                        });
+                        break;
+                    case 'price-high':
+                        filteredProducts.sort((a, b) => {
+                            const priceA = a.price * (1 - a.discount/100);
+                            const priceB = b.price * (1 - b.discount/100);
+                            return priceB - priceA;
+                        });
+                        break;
+                }
+            }
+
+            // Apply discount filter
+            const discountFilter = document.getElementById('discount-filter').value;
+            if (discountFilter) {
+                switch (discountFilter) {
+                    case '50-plus':
+                        filteredProducts = filteredProducts.filter(product => product.discount >= 50);
+                        break;
+                    case '40-plus':
+                        filteredProducts = filteredProducts.filter(product => product.discount >= 40);
+                        break;
+                    case '30-plus':
+                        filteredProducts = filteredProducts.filter(product => product.discount >= 30);
+                        break;
+                }
+            }
+
+            // Apply price filter
+            const priceFilter = document.getElementById('price-filter').value;
+            if (priceFilter) {
+                switch (priceFilter) {
+                    case 'under-1000':
+                        filteredProducts = filteredProducts.filter(product => {
+                            const finalPrice = product.price * (1 - product.discount/100);
+                            return finalPrice < 1000;
+                        });
+                        break;
+                    case '1000-3000':
+                        filteredProducts = filteredProducts.filter(product => {
+                            const finalPrice = product.price * (1 - product.discount/100);
+                            return finalPrice >= 1000 && finalPrice <= 3000;
+                        });
+                        break;
+                    case '3000-plus':
+                        filteredProducts = filteredProducts.filter(product => {
+                            const finalPrice = product.price * (1 - product.discount/100);
+                            return finalPrice > 3000;
+                        });
+                        break;
+                }
+            }
+
+            renderProducts(filteredProducts);
+        }
+
+        // Event listeners for filters
+        document.getElementById('sort-filter').addEventListener('change', applyFilters);
+        document.getElementById('discount-filter').addEventListener('change', applyFilters);
+        document.getElementById('price-filter').addEventListener('change', applyFilters);
+
+        // View toggle functionality
+        document.getElementById('grid-view').addEventListener('click', function() {
+            document.getElementById('product-container').classList.remove('grid-cols-1');
+            document.getElementById('product-container').classList.add('md:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4');
+        });
+
+        document.getElementById('list-view').addEventListener('click', function() {
+            document.getElementById('product-container').classList.remove('md:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4');
+            document.getElementById('product-container').classList.add('grid-cols-1');
+        });
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch("/add-to-cart", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show success notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-500';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="ri-checkbox-circle-line text-2xl mr-2"></i>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 3000);
+                    
+                    // Update cart count if available
+                    if (data.cartCount && document.getElementById('cart-count')) {
+                        document.getElementById('cart-count').textContent = data.cartCount;
+                        document.getElementById('cart-count').classList.remove('hidden');
+                    }
+                } else {
+                    alert(data.error || 'Error adding to cart');
+                }
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+                alert('Failed to add to cart. Please try again.');
+            }
+        }
+
+        fetchProducts(); // Initial load
+    </script>
+
+    <style>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes scrollDown {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(32px);
+            }
+        }
+
+        .animate-slideUp {
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .animate-slideLeft {
+            animation: slideLeft 0.8s ease-out forwards;
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .animate-scrollDown {
+            animation: scrollDown 1.5s ease-in-out infinite;
+        }
+    </style>
+</body>
+</html>

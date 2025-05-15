@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partials/head')%>
+<body class="tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%>
+    <%-include('partials/navbar')%>
+
+    <div class="max-w-4xl mx-auto px-4 py-16">
+        <div class="bg-white rounded-xl shadow-sm p-12 text-center">
+            <div class="w-20 h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="ri-checkbox-circle-line text-4xl text-[#bc8701]"></i>
+            </div>
+            
+            <h1 class="text-3xl font-semibold mb-4">Thank You for Your Order!</h1>
+            <p class="text-gray-600 mb-8">Your order has been successfully placed and is being processed.</p>
+            
+            <div class="flex flex-col gap-4 items-center justify-center mb-8">
+                <p class="text-sm text-gray-500">Order confirmation has been sent to your email.</p>
+                <p class="text-sm text-gray-500">You can track your order status in your orders page.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="/orders" class="inline-block bg-[#bc8701] text-white px-8 py-3 rounded-lg hover:bg-[#a67701] transition duration-300">
+                    View Your Orders
+                </a>
+                <a href="/" class="inline-block border border-[#bc8701] text-[#bc8701] px-8 py-3 rounded-lg hover:bg-[#fdf5e6] transition duration-300">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <%-include('partials/footer')%>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partials/head')%>
+<body class="px-6 sm:px-16 tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%> 
+
+    <!-- Product Section -->
+    <div class="container mx-auto py-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+                    <!-- Product Image -->
+                    <div class="product-image bg-gray-50 rounded-xl p-6 flex items-center justify-center">
+                        <!-- Main Image -->
+                        <img 
+                            id="productImage"
+                            src="/<%= product.image.replace(/\\/g, '/') %>" 
+                            alt="<%= product.productName %>" 
+                            class="w-full h-[500px] object-contain rounded-lg"
+                            onerror="this.src='/images/placeholder.png'"
+                        >
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="product-details space-y-8">
+                        <div class="space-y-3">
+                            <h1 class="text-4xl font-bold text-gray-800"><%= product.productName %></h1>
+                            <div class="flex items-center gap-3">
+                                <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
+                                    <%= product.gender %>
+                                </span>
+                                <% if (product.category && product.category.name) { %>
+                                    <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
+                                        <%= product.category.name %>
+                                    </span>
+                                <% } %>
+                                <button onclick="toggleLike('<%= product._id %>')" class="ml-auto">
+                                    <i class="ri-heart-line text-2xl cursor-pointer hover:text-red-500 transition-colors" data-product-id="<%= product._id %>"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="prose prose-lg text-gray-600">
+                            <p><%= product.description %></p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <% if (product.discount > 0) { %>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-3xl font-bold text-[#65350F]">₹<%= product.price - (product.price * product.discount / 100) %></span>
+                                        <span class="text-xl text-gray-400 line-through">₹<%= product.price %></span>
+                                        <span class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm font-medium">
+                                            <%= product.discount %>% OFF
+                                        </span>
+                                    </div>
+                                <% } else { %>
+                                    <span class="text-3xl font-bold text-[#65350F]">₹<%= product.price %></span>
+                                <% } %>
+                            </div>
+                            <button onclick="addToCart('<%= product._id %>')" class="bg-[#65350F] text-white px-8 py-3 rounded-xl hover:bg-[#4a2610] transition duration-300 text-lg font-medium flex items-center gap-2">
+                                <i class="ri-shopping-cart-line"></i>
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-6">
+                            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Product Details</h2>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-center gap-3">
+                                    <i class="ri-checkbox-circle-line text-[#65350F] text-xl"></i>
+                                    <span>Free Delivery on orders above ₹499</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="ri-shield-check-line text-[#65350F] text-xl"></i>
+                                    <span>Secure Payment with 100% Payment Protection</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="ri-arrow-repeat-line text-[#65350F] text-xl"></i>
+                                    <span>7 Days Easy Returns</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="ri-truck-line text-[#65350F] text-xl"></i>
+                                    <span>Fast Delivery</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <%-include('partials/footer')%> 
+    <script src="/js/like.js"></script>
+    <script>
+        async function addToCart(productId) {
+            try {
+                const response = await fetch("/add-to-cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Show success notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-500';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="ri-checkbox-circle-line text-2xl mr-2"></i>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 3000);
+                    
+                    // Update cart count if available
+                    if (data.cartCount && document.getElementById('cart-count')) {
+                        document.getElementById('cart-count').textContent = data.cartCount;
+                        document.getElementById('cart-count').classList.remove('hidden');
+                    }
+                } else {
+                    alert(data.error || 'Error adding to cart');
+                }
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+                alert('Failed to add to cart. Please try again.');
+            }
+        }
+    </script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <title>Sitemap | VASKA</title>
+</head>
+<body class="px-16 tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%- include('partials/topbar') %>
+    
+    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-bold mb-4">Sitemap</h1>
+        <p class="text-gray-700 mb-6">Browse through all sections of our website easily using the sitemap below.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-2xl font-semibold mt-6">Main Sections</h2>
+                <ul class="list-disc pl-6 text-gray-600">
+                    <li><a href="/" class="text-blue-600 underline">Home</a></li>
+                    <li><a href="/men" class="text-blue-600 underline">Men</a></li>
+                    <li><a href="/women" class="text-blue-600 underline">Women</a></li>
+                    <li><a href="/wedding" class="text-blue-600 underline">Wedding</a></li>
+                    <li><a href="/sale" class="text-blue-600 underline">Sale</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-semibold mt-6">Customer Service</h2>
+                <ul class="list-disc pl-6 text-gray-600">
+                    <li><a href="/orders-shipment" class="text-blue-600 underline">Orders & Shipment</a></li>
+                    <li><a href="/returns-exchange" class="text-blue-600 underline">Returns & Exchange</a></li>
+                    <li><a href="/contact" class="text-blue-600 underline">Contact Us</a></li>
+                    <li><a href="/faqs" class="text-blue-600 underline">FAQs</a></li>
+                    <li><a href="/gift-card-balance" class="text-blue-600 underline">Check Gift Card Balance</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-semibold mt-6">Company Information</h2>
+                <ul class="list-disc pl-6 text-gray-600">
+                    <li><a href="/about-us" class="text-blue-600 underline">About Us</a></li>
+                    <li><a href="/corporate-info" class="text-blue-600 underline">Corporate Information</a></li>
+                    <li><a href="/careers" class="text-blue-600 underline">Careers</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-semibold mt-6">Legal</h2>
+                <ul class="list-disc pl-6 text-gray-600">
+                    <li><a href="/terms-conditions" class="text-blue-600 underline">Terms & Conditions</a></li>
+                    <li><a href="/privacy-policy" class="text-blue-600 underline">Privacy Policy</a></li>
+                    <li><a href="/cookie-policy" class="text-blue-600 underline">Cookie Policy</a></li>
+                    <li><a href="/shipping-policy" class="text-blue-600 underline">Shipping Policy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <%- include('partials/footer') %>
+</body>
+</html>

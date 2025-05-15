@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+<body class="tracking-wide bg-[var(--color-background)] text-[var(--color-text)] font-[Montserrat]">
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include('partials/slidebar') %>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6 pt-24">
+      <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">Product Management</h1>
+        
+        <div class="flex items-center gap-4">
+          <button id="openFormBtn" class="flex items-center bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+            <i class="ri-add-line mr-2"></i> Add Product
+          </button>
+        </div>
+      </div>
+
+      <!-- Add/Edit Product Form (Hidden by default, shown when needed) -->
+      <div id="productFormContainer" class="bg-white rounded-lg shadow-sm p-6 mb-6 border-t-4 border-[var(--color-secondary)]">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-semibold" id="formTitle">Add New Product</h3>
+          <button id="closeFormBtn" class="text-gray-500 hover:text-gray-700">
+            <i class="ri-close-line text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="productForm" method="POST" action="/create-product" enctype="multipart/form-data" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-6">
+              <div>
+                <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                <input type="text" id="productName" name="productName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" placeholder="Enter product name" required />
+              </div>
+
+              <div>
+                <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select id="category" name="category" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" required>
+                  <option value="" disabled selected>Select category</option>
+                  <% categories.forEach(cat => { %>
+                    <option value="<%= cat._id %>"><%= cat.categoryName %></option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select id="gender" name="gender" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" required>
+                  <option value="">Select Gender</option>
+                  <option value="Men">Men</option>
+                  <option value="Women">Women</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div>
+                <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+                <input type="number" id="productPrice" name="price" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" placeholder="Enter price" required />
+              </div>
+
+              <div>
+                <label for="discount" class="block text-sm font-medium text-gray-700 mb-1">Discount (%)</label>
+                <input type="number" id="discount" name="discount" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" placeholder="Enter discount" min="0" max="100" required />
+              </div>
+
+              <div>
+                <label for="productImage" class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                <input type="file" id="productImage" accept="image/*" name="image" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" required />
+                <div id="imagePreview" class="mt-2 hidden relative h-40 w-full">
+                  <img src="" alt="Preview" class="h-full w-full object-cover rounded-md border border-gray-200" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" id="editProductId" />
+
+          <div class="flex gap-3 mt-6">
+            <button type="submit" class="bg-[var(--color-secondary)] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all" id="submitButton">
+              Add Product
+            </button>
+            <button type="button" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-all hidden" id="cancelEdit" onclick="cancelEdit()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Product Filters -->
+      <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div>
+            <label for="filterCategory" class="block text-xs font-medium text-gray-500 mb-1">Filter by Category</label>
+            <select id="filterCategory" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="">All Categories</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.categoryName %>"><%= cat.categoryName %></option>
+              <% }); %>
+            </select>
+          </div>
+          
+          <div>
+            <label for="filterGender" class="block text-xs font-medium text-gray-500 mb-1">Filter by Gender</label>
+            <select id="filterGender" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="">All Genders</option>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="filterType" class="block text-xs font-medium text-gray-500 mb-1">Filter by Type</label>
+            <select id="filterType" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="">All Items</option>
+              <option value="product">Products</option>
+              <option value="sale">Sales</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="sortBy" class="block text-xs font-medium text-gray-500 mb-1">Sort by</label>
+            <select id="sortBy" class="p-2 border border-gray-300 rounded-md text-sm">
+              <option value="name">Name (A-Z)</option>
+              <option value="price-low">Price (Low to High)</option>
+              <option value="price-high">Price (High to Low)</option>
+              <option value="discount">Discount</option>
+            </select>
+          </div>
+          
+          <div class="ml-auto">
+            <label for="search" class="block text-xs font-medium text-gray-500 mb-1">Search Products</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="ri-search-line text-gray-400"></i>
+              </span>
+              <input type="text" id="search" placeholder="Search..." class="pl-10 p-2 border border-gray-300 rounded-md text-sm w-64">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product List -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-semibold">Product List</h2>
+          
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-500">Total Products:</span>
+            <span class="font-medium"><%= products.length %></span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <% products.forEach((product) => { %>
+            <div class="relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 flex flex-col">
+              <!-- Discount Badge -->
+              <% if (product.discount > 0) { %>
+                <div class="absolute top-0 right-0 bg-red-500 text-white font-bold px-3 py-1 z-10 rounded-bl-lg shadow-sm">
+                  -<%= product.discount %>%
+                </div>
+              <% } %>
+              
+              <div class="aspect-video overflow-hidden relative h-64">
+                <img src="<%= product.image.replace(/\\/g, '/') %>" alt="<%= product.productName %>" 
+                  class="w-full h-full object-cover absolute inset-0 hover:scale-105 transition-transform duration-300" />
+              </div>
+              
+              <div class="p-4 flex-1 flex flex-col">
+                <h3 class="font-medium text-gray-900 mb-1 text-lg truncate"><%= product.productName %></h3>
+                <p class="text-sm text-gray-500 mb-2"><%= product.category.categoryName %> • <%= product.gender %></p>
+                
+                <div class="flex items-end gap-2 mb-3 mt-auto">
+                  <% if (product.discount > 0) { %>
+                    <div class="flex flex-col">
+                      <span class="text-xl font-bold text-[var(--color-secondary)]">
+                        ₹<%= (product.price - (product.price * product.discount / 100)).toFixed(0) %>
+                      </span>
+                      <span class="text-sm text-gray-500 line-through">₹<%= product.price %></span>
+                    </div>
+                    <div class="ml-auto">
+                      <span class="text-xs text-gray-500">Savings:</span>
+                      <span class="text-sm font-medium text-green-600">
+                        ₹<%= (product.price * product.discount / 100).toFixed(0) %>
+                      </span>
+                    </div>
+                  <% } else { %>
+                    <span class="text-xl font-bold text-[var(--color-secondary)]">₹<%= product.price %></span>
+                    <span class="ml-auto text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">No Discount</span>
+                  <% } %>
+                </div>
+                
+                <div class="flex gap-2 mt-2">
+                  <a href="/edit-product/<%= product._id %>" class="flex-1 bg-[var(--color-accent)] text-white text-center py-2 rounded-md text-sm hover:bg-opacity-90 transition-all flex items-center justify-center">
+                    <i class="ri-edit-line mr-1"></i> Edit
+                  </a>
+                  <form action="/delete-product/<%= product._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');" class="flex-1">
+                    <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-md text-sm hover:bg-opacity-90 transition-all flex items-center justify-center">
+                      <i class="ri-delete-bin-line mr-1"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        
+        <% if (products.length === 0) { %>
+          <div class="text-center py-10">
+            <div class="text-gray-400 text-5xl mb-4">
+              <i class="ri-shopping-bag-3-line"></i>
+            </div>
+            <p class="text-gray-500">No products found</p>
+            <p class="text-gray-400 text-sm mt-2">Add your first product using the "Add Product" button above</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle product form visibility
+    document.addEventListener('DOMContentLoaded', function() {
+      const formContainer = document.getElementById('productFormContainer');
+      const openFormBtn = document.getElementById('openFormBtn');
+      const closeFormBtn = document.getElementById('closeFormBtn');
+      
+      // Hide form by default
+      formContainer.style.display = 'none';
+      
+      openFormBtn.addEventListener('click', function() {
+        formContainer.style.display = 'block';
+        // Smooth scroll to form
+        formContainer.scrollIntoView({ behavior: 'smooth' });
+      });
+      
+      closeFormBtn.addEventListener('click', function() {
+        formContainer.style.display = 'none';
+      });
+      
+      // If the URL contains edit-product, show the form automatically
+      if (window.location.href.includes('edit-product')) {
+        formContainer.style.display = 'block';
+      }
+      
+      // Image preview
+      const productImage = document.getElementById('productImage');
+      const imagePreview = document.getElementById('imagePreview');
+      
+      if (productImage && imagePreview) {
+        productImage.addEventListener('change', function(e) {
+          if (e.target.files.length > 0) {
+            const src = URL.createObjectURL(e.target.files[0]);
+            const preview = imagePreview.querySelector('img');
+            preview.src = src;
+            imagePreview.classList.remove('hidden');
+          }
+        });
+      }
+      
+      // Filter functionality - completely rewritten
+      initializeFilters();
+      
+      function initializeFilters() {
+        const filterCategory = document.getElementById('filterCategory');
+        const filterGender = document.getElementById('filterGender');
+        const filterType = document.getElementById('filterType');
+        const sortBy = document.getElementById('sortBy');
+        const search = document.getElementById('search');
+        const productGrid = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4');
+        const countDisplay = document.querySelector('.flex.items-center.gap-2.text-sm .font-medium');
+        
+        if (!productGrid || !filterCategory || !filterGender || !filterType || !sortBy || !search) {
+          console.error('Could not find required filter elements');
+          return;
+        }
+        
+        // Create a backup of all products
+        const allProducts = Array.from(productGrid.children);
+        let visibleProducts = [...allProducts];
+        const initialCount = allProducts.length;
+        
+        // Apply filters on events
+        search.addEventListener('input', applyFilters);
+        filterCategory.addEventListener('change', applyFilters);
+        filterGender.addEventListener('change', applyFilters);
+        filterType.addEventListener('change', applyFilters);
+        sortBy.addEventListener('change', applyFilters);
+        
+        function applyFilters() {
+          const searchValue = search.value.toLowerCase().trim();
+          const categoryValue = filterCategory.value.toLowerCase();
+          const genderValue = filterGender.value;
+          const typeValue = filterType.value;
+          
+          // Reset display and filter
+          visibleProducts = allProducts.filter(card => {
+            // Extract data from card
+            const productName = card.querySelector('h3').textContent.toLowerCase();
+            const categoryInfo = card.querySelector('p.text-sm.text-gray-500').textContent.toLowerCase();
+            
+            // Extract gender from the category info string (format: "Category • Gender")
+            const genderInfo = categoryInfo.split('•')[1]?.trim().toLowerCase() || '';
+            
+            // Check if this is a sale item (has a sale badge)
+            const isSale = card.querySelector('.bg-red-500') !== null;
+            
+            // Apply search filter
+            if (searchValue && !productName.includes(searchValue)) {
+              return false;
+            }
+            
+            // Apply category filter
+            if (categoryValue && !categoryInfo.includes(categoryValue)) {
+              return false;
+            }
+            
+            // Apply gender filter
+            if (genderValue && genderInfo !== genderValue.toLowerCase()) {
+              return false;
+            }
+            
+            // Apply type filter
+            if (typeValue) {
+              if (typeValue === 'product' && isSale) {
+                return false;
+              }
+              if (typeValue === 'sale' && !isSale) {
+                return false;
+              }
+            }
+            
+            return true;
+          });
+          
+          // Apply sorting
+          sortProducts(visibleProducts, sortBy.value);
+          
+          // Update the display with filtered products
+          updateProductDisplay(visibleProducts);
+        }
+        
+        function sortProducts(products, sortingType) {
+          products.sort((a, b) => {
+            // Extract data for sorting
+            const nameA = a.querySelector('h3').textContent.toLowerCase();
+            const nameB = b.querySelector('h3').textContent.toLowerCase();
+            
+            const priceA = extractPrice(a);
+            const priceB = extractPrice(b);
+            
+            const discountA = extractDiscount(a);
+            const discountB = extractDiscount(b);
+            
+            // Sort based on the selected option
+            switch (sortingType) {
+              case 'name':
+                return nameA.localeCompare(nameB);
+              case 'price-low':
+                return priceA - priceB;
+              case 'price-high':
+                return priceB - priceA;
+              case 'discount':
+                return discountB - discountA;
+              default:
+                return 0;
+            }
+          });
+        }
+        
+        function extractPrice(card) {
+          const priceElement = card.querySelector('.text-xl.font-bold');
+          if (!priceElement) return 0;
+          
+          // Extract number from string like "₹1000"
+          const match = priceElement.textContent.match(/[\d,.]+/);
+          return match ? parseFloat(match[0].replace(/,/g, '')) : 0;
+        }
+        
+        function extractDiscount(card) {
+          const discountEl = card.querySelector('.bg-red-500');
+          if (!discountEl) return 0;
+          
+          // Extract number from string like "-20%"
+          const match = discountEl.textContent.match(/\d+/);
+          return match ? parseInt(match[0]) : 0;
+        }
+        
+        function updateProductDisplay(visibleProducts) {
+          // Clear the product grid
+          productGrid.innerHTML = '';
+          
+          if (visibleProducts.length === 0) {
+            // Show empty state
+            const emptyState = document.createElement('div');
+            emptyState.className = 'text-center py-10 col-span-full';
+            emptyState.innerHTML = `
+              <div class="text-gray-400 text-5xl mb-4">
+                <i class="ri-filter-off-line"></i>
+              </div>
+              <p class="text-gray-500">No products match your filters</p>
+              <p class="text-gray-400 text-sm mt-2">Try adjusting your search criteria</p>
+              <button id="resetFilters" class="mt-4 bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+                Reset Filters
+              </button>
+            `;
+            productGrid.appendChild(emptyState);
+            
+            // Add reset button listener
+            setTimeout(() => {
+              const resetBtn = document.getElementById('resetFilters');
+              if (resetBtn) {
+                resetBtn.addEventListener('click', resetAllFilters);
+              }
+            }, 100);
+          } else {
+            // Add visible products back to the grid
+            visibleProducts.forEach(product => {
+              productGrid.appendChild(product);
+            });
+          }
+          
+          // Update the count display
+          if (countDisplay) {
+            countDisplay.textContent = visibleProducts.length;
+          }
+        }
+        
+        function resetAllFilters() {
+          search.value = '';
+          filterCategory.value = '';
+          filterGender.value = '';
+          filterType.value = '';
+          sortBy.value = 'name';
+          
+          // Reset to original display
+          visibleProducts = [...allProducts];
+          updateProductDisplay(visibleProducts);
+          
+          // Update count display
+          if (countDisplay) {
+            countDisplay.textContent = initialCount;
+          }
+        }
+      }
+    });
+    
+    function cancelEdit() {
+      document.getElementById("productForm").reset();
+      document.getElementById("editProductId").value = "";
+      
+      // Reset button text
+      document.getElementById("submitButton").textContent = "Add Product";
+      document.getElementById("cancelEdit").classList.add("hidden");
+      
+      // Change form title
+      document.getElementById("formTitle").textContent = "Add New Product";
+      
+      // Hide image preview
+      const imagePreview = document.getElementById('imagePreview');
+      if (imagePreview) {
+        imagePreview.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>

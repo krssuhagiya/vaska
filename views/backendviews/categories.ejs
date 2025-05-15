@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/head') %>
+
+<body class="tracking-wide bg-[var(--color-background)] text-[var(--color-text)] font-[Montserrat]">
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include('partials/slidebar') %>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6 pt-24">
+      <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">Category Management</h1>
+      </div>
+
+      <!-- Add/Edit Category Form -->
+      <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-t-4 border-[var(--color-secondary)]">
+        <h3 class="text-xl font-semibold mb-4" id="formTitle">Add New Category</h3>
+        
+        <form id="categoryForm" action="/create-category" method="post" class="mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+              <input type="text" name="categoryName" id="categoryName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" placeholder="Enter category name" required />
+            </div>
+            
+            <div>
+              <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <select id="gender" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent" name="categoryGender" required>
+                <option value="">Select Gender</option>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+              </select>
+            </div>
+            
+            <div class="flex items-end">
+              <input type="hidden" id="editCategoryId" />
+              <div class="flex gap-3">
+                <button type="submit" class="bg-[var(--color-secondary)] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all" id="submitButton">
+                  Add Category
+                </button>
+                <button type="button" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-all hidden" id="cancelEdit" onclick="cancelEdit()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Categories List -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-4 border-b flex justify-between items-center">
+          <h3 class="font-semibold">Category List</h3>
+          
+          <!-- Export & Filter Options -->
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="ri-search-line text-gray-400"></i>
+              </span>
+              <input type="text" id="categorySearch" placeholder="Search categories..." class="pl-10 p-2 border border-gray-300 rounded-md text-sm">
+            </div>
+            
+            <button class="flex items-center bg-[var(--color-accent)] text-white px-3 py-2 rounded-md hover:bg-opacity-90 transition-all">
+              <i class="ri-download-line mr-2"></i> Export
+            </button>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-gray-600 uppercase text-xs">
+                <th class="px-6 py-3 text-left">ID</th>
+                <th class="px-6 py-3 text-left">Category Name</th>
+                <th class="px-6 py-3 text-left">Gender</th>
+                <th class="px-6 py-3 text-left">Products</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              <% categories.forEach(category => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 font-mono text-xs"><%= category._id %></td>
+                  <td class="px-6 py-4 font-medium"><%= category.categoryName %></td>
+                  <td class="px-6 py-4">
+                    <span class="<%= category.categoryGender === 'Men' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' %> px-2 py-1 rounded text-xs">
+                      <%= category.categoryGender %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <!-- This is a placeholder. You can add actual product count if available -->
+                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">0 products</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                      <button onclick="editCategory('<%= category._id %>', '<%= category.categoryName %>', '<%= category.categoryGender %>')" 
+                        class="bg-[var(--color-accent)] text-white px-3 py-1 rounded text-xs hover:bg-opacity-90 transition-all">
+                        <i class="ri-edit-line mr-1"></i> Edit
+                      </button>
+                      <button onclick="deleteCategory('<%= category._id %>')" 
+                        class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-opacity-90 transition-all">
+                        <i class="ri-delete-bin-line mr-1"></i> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function editCategory(id, name, gender) {
+      document.getElementById("categoryName").value = name;
+      document.getElementById("gender").value = gender;
+      document.getElementById("editCategoryId").value = id;
+      
+      // Change button text & show cancel button
+      document.getElementById("submitButton").textContent = "Update Category";
+      document.getElementById("submitButton").classList.remove("bg-[var(--color-secondary)]");
+      document.getElementById("submitButton").classList.add("bg-[var(--color-accent)]");
+      document.getElementById("cancelEdit").classList.remove("hidden");
+      
+      // Change form title
+      document.getElementById("formTitle").textContent = "Edit Category";
+      
+      // Scroll to form
+      document.querySelector('.bg-white').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById("categoryForm").reset();
+      document.getElementById("editCategoryId").value = "";
+      
+      // Reset button text & hide cancel button
+      document.getElementById("submitButton").textContent = "Add Category";
+      document.getElementById("submitButton").classList.remove("bg-[var(--color-accent)]");
+      document.getElementById("submitButton").classList.add("bg-[var(--color-secondary)]");
+      document.getElementById("cancelEdit").classList.add("hidden");
+      
+      // Reset form title
+      document.getElementById("formTitle").textContent = "Add New Category";
+    }
+    
+    async function deleteCategory(categoryId) {
+      if (confirm("Are you sure you want to delete this category?")) {
+        try {
+          const response = await fetch(`/delete-category/${categoryId}`, {
+            method: "DELETE",
+          });
+
+          const result = await response.json();
+          
+          // Show notification
+          const notification = document.createElement("div");
+          notification.classList.add("fixed", "bottom-4", "right-4", "bg-green-100", "text-green-800", "px-4", "py-3", "rounded-lg", "shadow-md", "z-50");
+          notification.innerHTML = `<div class="flex items-center"><i class="ri-check-line mr-2"></i> ${result.message}</div>`;
+          document.body.appendChild(notification);
+          
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            notification.classList.add("opacity-0", "transition-opacity");
+            setTimeout(() => notification.remove(), 300);
+          }, 3000);
+          
+          // Reload after small delay
+          setTimeout(() => location.reload(), 500);
+        } catch (error) {
+          console.error("Error deleting category:", error);
+        }
+      }
+    }
+    
+    document.getElementById("categoryForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const categoryId = document.getElementById("editCategoryId").value;
+      const categoryName = document.getElementById("categoryName").value.trim();
+      const categoryGender = document.getElementById("gender").value;
+
+      if (!categoryName || !categoryGender) {
+        alert("Please enter both category name and gender.");
+        return;
+      }
+
+      const url = categoryId ? `/update-category/${categoryId}` : "/create-category";
+      const method = categoryId ? "PUT" : "POST";
+
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ categoryName, categoryGender }),
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          // Show notification
+          const notification = document.createElement("div");
+          notification.classList.add("fixed", "bottom-4", "right-4", "bg-green-100", "text-green-800", "px-4", "py-3", "rounded-lg", "shadow-md", "z-50");
+          notification.innerHTML = `<div class="flex items-center"><i class="ri-check-line mr-2"></i> ${result.message}</div>`;
+          document.body.appendChild(notification);
+          
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            notification.classList.add("opacity-0", "transition-opacity");
+            setTimeout(() => notification.remove(), 300);
+          }, 3000);
+          
+          // Reset the form
+          document.getElementById("categoryForm").reset();
+          cancelEdit();
+          
+          // Reload the page after a short delay
+          setTimeout(() => location.reload(), 500);
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    });
+
+    // Category search functionality
+    document.getElementById('categorySearch').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const categoryName = row.children[1].textContent.toLowerCase();
+        const gender = row.children[2].textContent.toLowerCase();
+        
+        if (categoryName.includes(searchTerm) || gender.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

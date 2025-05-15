@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partials/head')%>
+<body class="tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%>
+    <%-include('partials/navbar')%>
+
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-semibold tracking-widest mb-2">MY ORDERS</h1>
+            <p class="text-gray-600">Track and manage your orders</p>
+        </div>
+
+        <% if (!user) { %>
+            <div class="bg-white rounded-xl shadow-sm p-12 text-center max-w-2xl mx-auto">
+                <div class="w-20 h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="ri-login-circle-line text-4xl text-[#bc8701]"></i>
+                </div>
+                <h3 class="text-2xl font-semibold mb-3">Please Login</h3>
+                <p class="text-gray-600 mb-8">You need to be logged in to view your orders.</p>
+                <a href="/login?redirect=/orders" class="inline-block bg-[#bc8701] text-white px-8 py-3 rounded-lg hover:bg-[#a67701] transition duration-300">
+                    Login to Continue
+                </a>
+            </div>
+        <% } else if (!orders || orders.length === 0) { %>
+            <div class="bg-white rounded-xl shadow-sm p-12 text-center max-w-2xl mx-auto">
+                <div class="w-20 h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="ri-shopping-bag-line text-4xl text-[#bc8701]"></i>
+                </div>
+                <h3 class="text-2xl font-semibold mb-3">No Orders Yet</h3>
+                <p class="text-gray-600 mb-8">You haven't placed any orders yet.</p>
+                <a href="/" class="inline-block bg-[#bc8701] text-white px-8 py-3 rounded-lg hover:bg-[#a67701] transition duration-300">
+                    Start Shopping
+                </a>
+            </div>
+        <% } else { %>
+            <div class="space-y-6">
+                <% try { %>
+                    <% orders.forEach(order => { %>
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <!-- Order Header -->
+                            <div class="bg-[#fdf5e6] p-6">
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-1">Order Placed</p>
+                                        <p class="font-medium">
+                                            <%= new Date(order.createdAt).toLocaleDateString('en-US', { 
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric' 
+                                            }) %>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-1">Order Total</p>
+                                        <p class="font-medium text-[#bc8701]">₹<%= parseFloat(order.totalAmount).toFixed(2) %></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-1">Order ID</p>
+                                        <p class="font-medium">#<%= order._id.toString().slice(-8).toUpperCase() %></p>
+                                    </div>
+                                    <div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                                            <%= order.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                                                order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                                                'bg-yellow-100 text-yellow-700' %>">
+                                            <i class="<%= order.status === 'delivered' ? 'ri-checkbox-circle-line' :
+                                                        order.status === 'shipped' ? 'ri-truck-line' :
+                                                        'ri-time-line' %> mr-1"></i>
+                                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Items -->
+                            <div class="p-6">
+                                <div class="space-y-6">
+                                    <% if (order.products && order.products.length > 0) { %>
+                                        <% order.products.forEach(item => { %>
+                                            <% if (item && item.product) { %>
+                                                <div class="flex flex-col md:flex-row items-start gap-6 pb-6 border-b border-gray-100 last:border-0 last:pb-0">
+                                                    <div class="w-24 h-24 flex-shrink-0 bg-[#fdf5e6] rounded-lg p-2">
+                                                        <img src="/<%= item.product.image || 'images/placeholder.png' %>"
+                                                            alt="<%= item.product.productName || 'Product Image' %>"
+                                                            class="w-full h-full object-contain"
+                                                            onerror="this.src='/images/placeholder.png'">
+                                                    </div>
+                                                    <div class="flex-grow">
+                                                        <h4 class="text-lg font-medium mb-2"><%= item.product.productName || 'Product Name Not Available' %></h4>
+                                                        <div class="flex flex-wrap gap-4 text-sm">
+                                                            <p>Quantity: <span class="font-medium"><%= item.quantity || 1 %></span></p>
+                                                            <p>Price: <span class="font-medium">₹<%= parseFloat(item.priceAtOrder || 0).toFixed(2) %></span></p>
+                                                            <p>Total: <span class="font-medium text-[#bc8701]">₹<%= (parseFloat(item.priceAtOrder || 0) * (item.quantity || 1)).toFixed(2) %></span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4 md:mt-0">
+                                                        <a href="/product/<%= item.product._id %>" 
+                                                           class="inline-flex items-center text-[#bc8701] hover:text-[#a67701] transition-colors">
+                                                            View Product
+                                                            <i class="ri-arrow-right-line ml-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <p class="text-gray-600 text-center">No items found in this order.</p>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Order Actions -->
+                            <div class="bg-gray-50 p-6 flex flex-wrap gap-4 justify-end">
+                                <button onclick="window.print()" 
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                                    <i class="ri-printer-line mr-2"></i>
+                                    Print Order
+                                </button>
+                                <a href="mailto:support@VASKA.com?subject=Order%20#<%= order._id.toString().slice(-8).toUpperCase() %>"
+                                   class="inline-flex items-center px-4 py-2 bg-[#bc8701] text-white rounded-lg hover:bg-[#a67701] transition-colors">
+                                    <i class="ri-customer-service-2-line mr-2"></i>
+                                    Need Help?
+                                </a>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } catch (error) { %>
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+                        <p class="text-red-600">Error displaying orders: <%= error.message %></p>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <%-include('partials/footer')%>
+
+    <style>
+        @media print {
+            .bg-[#FAF8F0] { background-color: white !important; }
+            nav, footer, button, .no-print { display: none !important; }
+            .shadow-sm { box-shadow: none !important; }
+            .rounded-xl { border-radius: 0 !important; }
+            .bg-white { background-color: white !important; }
+            * { color: black !important; }
+        }
+    </style>
+    <script src="/js/script.js"></script>
+    
+</body>
+</html>

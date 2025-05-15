@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+<body class="px-6 sm:px-16 tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%- include('partials/topbar') %>
+    <%- include('partials/navbar') %>
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">My Wishlist</h1>
+
+        <% if (!likedProducts || likedProducts.length === 0) { %>
+            <div class="text-center py-8">
+                <p class="text-xl text-gray-600 mb-4">Your wishlist is empty</p>
+                <a href="/" class="bg-[#65350F] text-white px-6 py-2 rounded hover:bg-[#4a2610] transition-colors">
+                    Continue Shopping
+                </a>
+            </div>
+        <% } else { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <% likedProducts.forEach(product => { %>
+                    <div class="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-[#D4AF37]/10">
+                        <div class="relative aspect-[3/4] overflow-hidden">
+                            <img src="/<%= product.image %>" alt="<%= product.productName %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='/images/placeholder.png'">
+                            <button 
+                                onclick="toggleLike('<%= product._id %>', this)"
+                                class="absolute top-4 right-4 bg-white w-10 h-10 flex items-center justify-center rounded-full shadow-md hover:bg-gray-100 transform hover:scale-110 transition-all"
+                                aria-label="Remove from wishlist"
+                            >
+                                <i class="ri-heart-fill text-2xl cursor-pointer hover:text-[#65350F] transition-colors"></i>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold mb-2"><%= product.productName %></h3>
+                            <p class="text-gray-600 mb-2"><%= product.productName %></p>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <% if (product.discount > 0) { %>
+                                        <span class="text-gray-500 line-through">₹<%= product.price %></span>
+                                        <span class="text-lg font-bold text-[#65350F] ml-2">
+                                            ₹<%= Math.round(product.price * (1 - product.discount/100)) %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="text-lg font-bold text-[#65350F]">₹<%= product.price %></span>
+                                    <% } %>
+                                </div>
+                                <button 
+                                    onclick="addToCart('<%= product._id %>')"
+                                    class="bg-[#65350F] text-white px-4 py-2 rounded hover:bg-[#4a2610] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#65350F]"
+                                    aria-label="Add to cart"
+                                >
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('partials/appointment') %>
+    <%- include('partials/footer') %>
+
+    <script>
+    async function toggleLike(productId, button) {
+        try {
+            const response = await fetch('/toggle-like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Remove the product card from the wishlist view
+                button.closest('.group').remove();
+                
+                // Check if wishlist is empty after removal
+                const wishlistGrid = document.querySelector('.grid');
+                if (!wishlistGrid || !wishlistGrid.children.length) {
+                    location.reload(); // Reload to show empty state
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function addToCart(productId) {
+        try {
+            const response = await fetch('/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+            });
+            
+            const data = await response.json();
+            if (response.ok) {
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-500';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="ri-checkbox-circle-line text-2xl mr-2"></i>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+                
+                // Update cart count if available
+                if (data.cartCount && document.getElementById('cart-count')) {
+                    document.getElementById('cart-count').textContent = data.cartCount;
+                    document.getElementById('cart-count').classList.remove('hidden');
+                }
+            } else {
+                alert(data.error || 'Error adding to cart');
+            }
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            alert('Failed to add to cart. Please try again.');
+        }
+    }
+    </script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

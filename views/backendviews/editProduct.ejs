@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/head') %>
+
+<body class="tracking-wide bg-[var(--color-background)] text-[var(--color-text)] font-[Montserrat]">
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include('partials/slidebar') %>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6 pt-24">
+      <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">Edit Product</h1>
+        
+        <div class="flex items-center gap-4">
+          <a href="/get-products" class="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+            <i class="ri-arrow-left-line mr-2"></i> Back to Products
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Edit Product Form -->
+        <div class="lg:col-span-3">
+          <div class="bg-white rounded-lg shadow-sm p-6 border-t-4 border-[var(--color-accent)]">
+            <h3 class="text-xl font-semibold mb-6">Update Product Details</h3>
+            
+            <form id="productForm" action="/update-product/<%=products._id%>" method="post" enctype="multipart/form-data" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                  <input type="text" value="<%=products.productName%>" name="productName" id="productName" 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent" 
+                    placeholder="Enter product name" required />
+                </div>
+                
+                <div>
+                  <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+                  <input type="number" value="<%=products.price%>" name="price" id="productPrice" 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent" 
+                    placeholder="Enter product price" required />
+                </div>
+                
+                <div>
+                  <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select id="category" name="category" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent" required>
+                    <option value="">Select category</option>
+                    <% if (categories) { %>
+                      <% categories.forEach(cat => { %>
+                        <option value="<%= cat._id %>" <%= products.category && products.category._id && products.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
+                          <%= cat.categoryName %>
+                        </option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                  <select id="gender" name="gender" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent" required>
+                    <option value="">Select Gender</option>
+                    <option value="Men" <%= products.gender === 'Men' ? 'selected' : '' %>>Men</option>
+                    <option value="Women" <%= products.gender === 'Women' ? 'selected' : '' %>>Women</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="discount" class="block text-sm font-medium text-gray-700 mb-1">Discount (%)</label>
+                  <input type="number" value="<%= products.discount || 0 %>" name="discount" id="discount" 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent" 
+                    min="0" max="100" placeholder="Enter discount" />
+                </div>
+                
+                <div>
+                  <label for="productImage" class="block text-sm font-medium text-gray-700 mb-1">Product Image (Optional)</label>
+                  <input type="file" name="image" id="productImage" 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent"
+                    accept="image/*" />
+                  <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
+                </div>
+              </div>
+              
+              <div class="flex gap-3 mt-6">
+                <button type="submit" class="bg-[var(--color-accent)] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all">
+                  <i class="ri-save-line mr-1"></i> Update Product
+                </button>
+                <a href="/get-products" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-all">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Product Preview -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow-sm p-6 border-t-4 border-[var(--color-secondary)]">
+            <h3 class="text-xl font-semibold mb-6">Product Preview</h3>
+            
+            <div class="aspect-square mb-4 rounded-md overflow-hidden bg-gray-50 border border-gray-200 relative">
+              <img src="<%= products.image ? products.image.replace(/\\/g, '/') : '/placeholder.jpg' %>" 
+                alt="<%= products.productName %>" 
+                class="w-full h-full object-cover absolute inset-0" id="previewImage" />
+            </div>
+            
+            <div class="border-t border-gray-100 pt-4">
+              <h4 class="font-medium text-lg" id="previewName"><%= products.productName %></h4>
+              <p class="text-sm text-gray-500 mb-2" id="previewCategory">
+                <%= products.category ? products.category.categoryName : '' %> • <%= products.gender || '' %>
+              </p>
+              
+              <div class="flex items-center gap-2 mb-1">
+                <% if (products.discount && products.discount > 0) { %>
+                  <span class="text-2xl font-bold text-[var(--color-secondary)]" id="previewDiscountedPrice">
+                    ₹<%= (products.price - (products.price * products.discount / 100)).toFixed(0) %>
+                  </span>
+                  <span class="text-sm text-gray-500 line-through" id="previewOriginalPrice">₹<%= products.price %></span>
+                  <span class="ml-auto text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full" id="previewDiscount">
+                    -<%= products.discount %>%
+                  </span>
+                <% } else { %>
+                  <span class="text-2xl font-bold text-[var(--color-secondary)]" id="previewPrice">₹<%= products.price %></span>
+                <% } %>
+              </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+              <p class="text-sm text-gray-500 mb-3">Preview updates as you edit</p>
+              <div class="text-xs text-gray-400">Product ID: <%= products._id %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Live preview updates
+    document.addEventListener('DOMContentLoaded', function() {
+      const productName = document.getElementById('productName');
+      const productPrice = document.getElementById('productPrice');
+      const discount = document.getElementById('discount');
+      const productImage = document.getElementById('productImage');
+      const category = document.getElementById('category');
+      const gender = document.getElementById('gender');
+      
+      // Preview elements
+      const previewName = document.getElementById('previewName');
+      const previewCategory = document.getElementById('previewCategory');
+      const previewImage = document.getElementById('previewImage');
+      
+      // Update preview on input change
+      if (productName) {
+        productName.addEventListener('input', function() {
+          if (previewName) previewName.textContent = this.value;
+        });
+      }
+      
+      if (category && gender) {
+        function updateCategoryDisplay() {
+          const categoryText = category.options[category.selectedIndex]?.text || '';
+          const genderText = gender.options[gender.selectedIndex]?.text || '';
+          if (previewCategory && categoryText && genderText) {
+            previewCategory.textContent = `${categoryText} • ${genderText}`;
+          }
+        }
+        
+        category.addEventListener('change', updateCategoryDisplay);
+        gender.addEventListener('change', updateCategoryDisplay);
+      }
+      
+      if (productPrice && discount) {
+        function updatePriceDisplay() {
+          const price = parseFloat(productPrice.value) || 0;
+          const discountValue = parseFloat(discount.value) || 0;
+          
+          const discountedPrice = price - (price * discountValue / 100);
+          
+          // Update displayed prices based on whether there's a discount
+          if (discountValue > 0) {
+            // Show discounted price
+            const previewDiscountedPrice = document.getElementById('previewDiscountedPrice') || 
+              document.createElement('span');
+            
+            if (!document.getElementById('previewDiscountedPrice')) {
+              previewDiscountedPrice.id = 'previewDiscountedPrice';
+              previewDiscountedPrice.className = 'text-2xl font-bold text-[var(--color-secondary)]';
+              document.getElementById('previewPrice')?.parentNode.prepend(previewDiscountedPrice);
+            }
+            
+            previewDiscountedPrice.textContent = `₹${discountedPrice.toFixed(0)}`;
+            
+            // Show original price with strikethrough
+            const previewOriginalPrice = document.getElementById('previewOriginalPrice') || 
+              document.createElement('span');
+              
+            if (!document.getElementById('previewOriginalPrice')) {
+              previewOriginalPrice.id = 'previewOriginalPrice';
+              previewOriginalPrice.className = 'text-sm text-gray-500 line-through';
+              previewDiscountedPrice.after(previewOriginalPrice);
+            }
+            
+            previewOriginalPrice.textContent = `₹${price}`;
+            
+            // Show discount percentage
+            const previewDiscount = document.getElementById('previewDiscount') || 
+              document.createElement('span');
+              
+            if (!document.getElementById('previewDiscount')) {
+              previewDiscount.id = 'previewDiscount';
+              previewDiscount.className = 'ml-auto text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full';
+              previewOriginalPrice.after(previewDiscount);
+            }
+            
+            previewDiscount.textContent = `-${discountValue}%`;
+            
+            // Hide regular price if it exists
+            const previewPrice = document.getElementById('previewPrice');
+            if (previewPrice) previewPrice.style.display = 'none';
+          } else {
+            // Hide discounted elements
+            const elementsToHide = ['previewDiscountedPrice', 'previewOriginalPrice', 'previewDiscount'];
+            elementsToHide.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.style.display = 'none';
+            });
+            
+            // Show regular price
+            let previewPrice = document.getElementById('previewPrice');
+            if (!previewPrice) {
+              previewPrice = document.createElement('span');
+              previewPrice.id = 'previewPrice';
+              previewPrice.className = 'text-2xl font-bold text-[var(--color-secondary)]';
+              document.querySelector('.flex.items-center.gap-2').appendChild(previewPrice);
+            }
+            
+            previewPrice.style.display = 'inline';
+            previewPrice.textContent = `₹${price}`;
+          }
+        }
+        
+        productPrice.addEventListener('input', updatePriceDisplay);
+        discount.addEventListener('input', updatePriceDisplay);
+      }
+      
+      if (productImage && previewImage) {
+        productImage.addEventListener('change', function(e) {
+          if (e.target.files.length > 0) {
+            const src = URL.createObjectURL(e.target.files[0]);
+            previewImage.src = src;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

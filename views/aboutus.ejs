@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <title>About Us - VASKA</title>
+</head>
+<body class="px-16 tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    
+    <%- include('partials/topbar') %>
+    
+    <!-- Hero Section -->
+    <section class="hero bg-cover bg-center h-[60vh] flex items-center justify-center text-white text-center" style="background-image: url('/images/about-banner.jpg');">
+        <div class="bg-[#65360fce] bg-opacity-50 p-10 rounded-lg">
+            <h1 class="text-4xl font-bold uppercase">About VASKA</h1>
+            <p class="text-lg mt-3">Bringing Comfort and Elegance to Every Wardrobe</p>
+        </div>
+    </section>
+
+    <!-- Company Mission -->
+    <section class="mission text-center py-16 px-10 max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold">Our Mission</h2>
+        <p class="text-lg mt-4 text-gray-600">At VASKA, our mission is to redefine fashion by merging comfort with sophistication. We strive to provide high-quality, stylish, and sustainable apparel that aligns with the needs of our customers while being mindful of the environment.</p>
+    </section>
+
+    <!-- Our Story -->
+    <section class="story bg-gray-100 py-16 px-10" id="foundation">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-10">
+            <div class="w-full md:w-1/2">
+                <img src="/images/our-story.jpg" alt="Our Story" class="rounded-lg shadow-lg">
+            </div>
+            <div class="w-full md:w-1/2">
+                <h2 class="text-3xl font-bold">Our Story</h2>
+                <p class="text-lg mt-4 text-gray-600">Founded in [Year], VASKA was born out of a passion for crafting apparel that balances elegance and comfort. Our journey started with a simple idea – to make everyday fashion accessible, stylish, and sustainable.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Values -->
+    <section class="values text-center py-16 px-10">
+        <h2 class="text-3xl font-bold">Our Core Values</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10">
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold">Quality</h3>
+                <p class="text-gray-600 mt-2">We use premium materials to ensure every product stands the test of time.</p>
+            </div>
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold">Sustainability</h3>
+                <p class="text-gray-600 mt-2">We are committed to ethical sourcing and environmentally friendly practices.</p>
+            </div>
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold">Customer Satisfaction</h3>
+                <p class="text-gray-600 mt-2">Our customers are at the heart of everything we do, ensuring an exceptional shopping experience.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet the Team -->
+    <section class="team bg-gray-100 py-16 px-10">
+        <h2 class="text-3xl font-bold text-center">Meet Our Team</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10 max-w-5xl mx-auto">
+            <div class="text-center">
+                <img src="/images/team1.jpg" alt="CEO" class="w-32 h-32 mx-auto rounded-full shadow-md">
+                <h3 class="text-xl font-semibold mt-4">John Doe</h3>
+                <p class="text-gray-600">Founder & CEO</p>
+            </div>
+            <div class="text-center">
+                <img src="/images/team2.jpg" alt="Designer" class="w-32 h-32 mx-auto rounded-full shadow-md">
+                <h3 class="text-xl font-semibold mt-4">Jane Smith</h3>
+                <p class="text-gray-600">Lead Designer</p>
+            </div>
+            <div class="text-center">
+                <img src="/images/team3.jpg" alt="Marketing Head" class="w-32 h-32 mx-auto rounded-full shadow-md">
+                <h3 class="text-xl font-semibold mt-4">Robert Brown</h3>
+                <p class="text-gray-600">Head of Marketing</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-choose py-16 px-10 text-center">
+        <h2 class="text-3xl font-bold">Why Choose VASKA?</h2>
+        <p class="text-lg mt-4 text-gray-600 max-w-3xl mx-auto">We take pride in offering premium quality, stylish designs, and sustainable fashion choices tailored for everyone. Our commitment to excellence and innovation makes us stand out in the fashion industry.</p>
+    </section>
+    
+    <%- include('partials/footer') %>
+    <script src="/js/script.js"></script>
+</body>
+</html>

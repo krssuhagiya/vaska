@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%-include('partials/head')%>
+
+  <body class="tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%> <%-include('partials/navbar')%>
+
+    <!-- Featured -->
+    <div
+      class="features flex flex-wrap justify-center gap-6 my-20 mx-4 md:mx-10"
+    >
+      <a href="/orderandshipment">
+        <div
+          class="feature border border-gray-300 flex items-center justify-center gap-2 pl-8 pr-20 py-5"
+        >
+          <i class="ri-check-fill text-4xl text-[#bc8701] font-extrabold"></i>
+          <h4 class="text-xl font-semibold">Quality Product</h4>
+        </div>
+      </a>
+      <a href="/orderandshipment">
+        <div
+          class="feature border border-gray-300 flex items-center justify-center gap-2 pl-8 pr-20 py-5"
+        >
+          <i class="ri-truck-fill text-4xl text-[#bc8701] font-extrabold"></i>
+          <h4 class="text-xl font-semibold">Free Shipping</h4>
+        </div>
+      </a>
+      <a href="/returnandexchange">
+        <div
+          class="feature border border-gray-300 flex items-center justify-center gap-2 pl-8 pr-20 py-5"
+        >
+          <i
+            class="ri-arrow-left-right-fill text-4xl text-[#bc8701] font-extrabold"
+          ></i>
+          <h4 class="text-xl font-semibold">14-Day Return</h4>
+        </div>
+      </a>
+      <a href="/contact">
+        <div
+          class="feature border border-gray-300 flex items-center justify-center gap-2 pl-8 pr-20 py-5"
+        >
+          <i
+            class="ri-customer-service-2-fill text-4xl text-[#bc8701] font-extrabold"
+          ></i>
+          <h4 class="text-xl font-semibold">24/7 Support</h4>
+        </div>
+      </a>
+    </div>
+
+    <!-- Categories -->
+    <!-- Categories -->
+    <div class="categories tracking-widest px-4 sm:px-8">
+      <h2 class="text-center text-2xl sm:text-3xl pb-6 font-semibold">
+        SHOP BY CATEGORY
+      </h2>
+
+      <div
+        class="category grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 place-items-center"
+      >
+        <!-- Card 1 -->
+        <div class="card w-[80vw] sm:w-full flex flex-col text-center">
+          <a href="/category/67e68bbca8e1986f2e075cb0">
+            <div
+              class="h-[40vh] sm:h-[45vh] md:h-[50vh] overflow-hidden rounded-md"
+            >
+              <img
+                src="./img/cat1.jpg"
+                alt="Sarees collection"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <p class="text-sm sm:text-base py-2">SAREES</p>
+          </a>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card w-[80vw] sm:w-full flex flex-col text-center">
+          <a href="/category/67cfb2dbbb046e543a7b16ea">
+            <div
+              class="h-[40vh] sm:h-[45vh] md:h-[50vh] overflow-hidden rounded-md"
+            >
+              <img
+                src="./img/cat2.jpg"
+                alt="Lehenga sets"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <p class="text-sm sm:text-base py-2">LEHENGA SETS</p>
+          </a>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card w-[80vw] sm:w-full flex flex-col text-center">
+          <a href="/category/67e68811a8e1986f2e075b91">
+            <div
+              class="h-[40vh] sm:h-[45vh] md:h-[50vh] overflow-hidden rounded-md"
+            >
+              <img
+                src="./img/cat3.jpg"
+                alt="Kurta sets"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <p class="text-sm sm:text-base py-2">KURTA SET</p>
+          </a>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card w-[80vw] sm:w-full flex flex-col text-center">
+          <a href="/category/67e687eda8e1986f2e075b8a">
+            <div
+              class="h-[40vh] sm:h-[45vh] md:h-[50vh] overflow-hidden rounded-md"
+            >
+              <img
+                src="./img/cat4.jpg"
+                alt="Men's kurta"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <p class="text-sm sm:text-base py-2">SHERWANIS</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menswear -->
+   <div class="menswear flex flex-col items-center gap-2">
+    <h2 class="text-4xl tracking-widest text-center mt-10 md:mt-20 mb-6 md:mb-8">MENSWEAR</h2>
+    <div class="images flex flex-col md:flex-row justify-center gap-4 md:gap-6 w-full px-4 md:px-0">
+        <div class="card bg-amber-400 h-[80vh] md:h-[100vh] w-full md:w-[35vw]">
+            <img src="./img/men2.jpg" alt="Men's fashion outfit" class="w-full h-full object-cover" />
+        </div>
+        <div class="card bg-amber-400 h-[80vh] md:h-[100vh] w-full md:w-[35vw]">
+            <img src="./img/men1.jpg" alt="Men's traditional wear" class="w-full h-full object-cover" />
+        </div>
+    </div>
+
+    <a href="/men" class="border px-8 py-1 my-6 md:my-8 hover:bg-gray-200 transition text-sm md:text-base">
+        SHOP THE COLLECTION <i class="ri-arrow-right-line text-lg pl-4"></i>
+    </a>
+</div>
+
+    <%-include('partials/appointment')%> <%-include('partials/footer')%>
+    <script src="/js/script.js"></script>
+  </body>
+</html>

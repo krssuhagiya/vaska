@@ -1,0 +1,65 @@
+<!-- Navbar -->
+<div class="nav flex flex-col md:flex-row py-3 border-b border-gray-300 px-4 md:px-8">
+
+    <!-- Left (Categories) -->
+    <div class="left md:w-[23%]">
+      <div class="main-box">
+        <a id="categories" class="title flex items-center justify-between px-6 bg-[#65350F] py-4 font-medium text-lg text-white rounded-t-lg cursor-pointer">
+          <h6>Categories</h6>
+          <i class="ri-arrow-down-s-line transition-transform duration-300"></i>
+        </a>
+        <div id="categoryLink" class="category flex flex-col max-h-0 overflow-hidden transition-all duration-500 ease-in-out"> 
+        </div>
+      </div>
+    </div>
+    <!-- Right (Navigation + Slideshow) -->
+    <div class="right w-full md:w-[77%] md:ml-7 mt-4 md:mt-0">
+  
+      <!-- Navigation Links -->
+      <div class="navigation py-5 text-lg px-2 md:px-0">
+        <div class="flex items-center justify-between">
+          <div class="nav flex items-center gap-5 text-base overflow-x-auto whitespace-nowrap scrollbar-hide">
+
+            <a href="/" class="hover:text-[#65350F]">HOME</a>
+            <a href="/men" class="hover:text-[#65350F]">MEN</a>
+            <a href="/women" class="hover:text-[#65350F]">WOMEN</a>
+            <a href="/wedding" class="hover:text-[#65350F]">WEDDING</a>
+            <a href="/sale" class="hover:text-[#65350F]">SALE</a>
+          </div> 
+        </div>
+      </div>
+  
+      <!-- Slideshow -->
+      <div class="relative w-full h-[410px] overflow-hidden rounded-lg">
+        <div id="slideshow" class="flex transition-transform duration-500 ease-in-out">
+          <div class="min-w-full h-[410px] relative">
+            <img src="/img/slideshow1.jpg" class="w-full h-full object-cover" alt="Slide 1" />
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/50">
+              <h4 class="text-lg uppercase font-medium mb-3">10% Off Your First Order</h4>
+              <h3 class="text-4xl font-semibold mb-4">Fashionable Dress</h3>
+              <a href="/men" class="bg-white text-black py-2 px-4 rounded hover:bg-gray-200 transition">Shop Now</a>
+            </div>
+          </div>
+  
+          <div class="min-w-full h-[410px] relative">
+            <img src="/img/slideshow2.jpg" class="w-full h-full object-cover" alt="Slide 2" />
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/50">
+              <h4 class="text-lg uppercase font-medium mb-3">10% Off Your First Order</h4>
+              <h3 class="text-4xl font-semibold mb-4">Reasonable Price</h3>
+              <a href="/women" class="bg-white text-black py-2 px-4 rounded hover:bg-gray-200 transition">Shop Now</a>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Slideshow Buttons -->
+        <button id="prev" class="absolute left-12 top-1/2 -translate-y-1/2 bg-white/50 text-black p-2 cursor-pointer rounded-full">
+          <i class="ri-arrow-left-s-line text-2xl"></i>
+        </button>
+        <button id="next" class="absolute right-12 top-1/2 -translate-y-1/2 bg-white/50 text-black p-2 cursor-pointer rounded-full">
+          <i class="ri-arrow-right-s-line text-2xl"></i>
+        </button>
+      </div>
+  
+    </div>
+  </div> 
+  

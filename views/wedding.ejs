@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partials/head')%>
+<body class="tracking-wide bg-[#FAF8F0] text-[#1e1e19] font-[Montserrat]">
+    <%-include('partials/topbar')%>
+    <%-include('partials/navbar')%>
+
+    <!-- Wedding Section -->
+    <h2 class="text-2xl font-semibold tracking-wide text-gray-800 text-center mt-28">
+        Eternal Elegance, Timeless Love
+    </h2>
+
+    <!-- Explore Section -->
+    <div class="explore flex flex-col md:flex-row w-screen mt-5">
+        <!-- Bride Section -->
+        <div class="relative w-full md:w-1/2 h-[100vh] overflow-hidden group">
+            <img src="./img/bridel.webp" alt="" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-center">
+                <h2 class="text-3xl font-bold uppercase">For the Bride</h2>
+                <p class="text-lg mt-2 cursor-pointer hover:underline"><a href="/category/67e687e0a8e1986f2e075b87">Explore</a></p>
+            </div>
+        </div>
+
+        <!-- Groom Section -->
+        <div class="relative w-full md:w-1/2 h-[100vh] overflow-hidden group">
+            <img src="./img/groom.webp" alt="" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-center">
+                <h2 class="text-3xl font-bold uppercase">For the Groom</h2>
+                <p class="text-lg mt-2 cursor-pointer hover:underline"><a href="/category/67e687eda8e1986f2e075b8a">Explore</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="categories tracking-widest my-20">
+        <h2 class="text-center text-3xl pb-4">SHOP BY CATEGORY</h2>
+        <div class="category flex flex-wrap justify-center gap-4">
+            <div class="card h-[55vh] w-[17vw] text-center">
+                <a href="/category/67e68bbca8e1986f2e075cb0">
+                    <img src="./img/cat1.jpg" alt="Sarees collection" class="w-full h-[95%] object-cover" />
+                <p class="text-xs py-2">SAREES</p>
+                </a>
+                
+            </div>
+            <div class="card h-[55vh] w-[17vw] text-center">
+                <a href="category/67cfb2dbbb046e543a7b16ea">
+
+                    <img src="./img/cat2.jpg" alt="Lehenga sets" class="w-full h-[95%] object-cover" />
+                    <p class="text-xs py-2">LEHENGA SETS</p>
+                </a>
+            </div>
+            <div class="card h-[55vh] w-[17vw] text-center">
+                <a href="category/67e68811a8e1986f2e075b91">
+                    
+                    <img src="./img/cat3.jpg" alt="Kurta sets" class="w-full h-[95%] object-cover" />
+                    <p class="text-xs py-2">KURTA SET</p>
+                </a>
+            </div>
+            <div class="card h-[55vh] w-[17vw] text-center">
+                <a href="category/67e687eda8e1986f2e075b8a">
+
+                    <img src="./img/cat4.jpg" alt="Men's kurta" class="w-full h-[95%] object-cover" />
+                    <p class="text-xs py-2">SHERWANIS</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <%-include('partials/appointment')%>
+    <%-include('partials/footer')%>
+    <script src="/js/script.js"></script>
+</body>
+</html>
